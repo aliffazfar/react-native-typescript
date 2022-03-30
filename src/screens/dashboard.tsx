@@ -3,16 +3,22 @@ import {FlatList, StyleSheet, Text, View} from 'react-native';
 import {ApprovalRender, Button} from '../components';
 import firebase from 'firebase';
 
-const App: FC = () => {
+interface Props {
+  navigation: any;
+}
+
+const App: FC<Props> = props => {
   const [posts, setPosts] = useState<any>(null);
 
   const fetchPendingPosts = async () => {
-    const posts = await firebase
+    firebase
       .firestore()
       .collection('posts')
       .where('approved', '==', false)
-      .get();
-    setPosts([...posts.docs]);
+      .onSnapshot(querySnapShot => {
+        const documents = querySnapShot.docs;
+        setPosts(documents);
+      });
   };
 
   const onApprove = async (id: string) => {

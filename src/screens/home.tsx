@@ -1,6 +1,6 @@
 import React, {FC, useEffect, useState} from 'react';
-import {Alert, StyleSheet, Text, View} from 'react-native';
-import {Button, Input} from '../components';
+import {Alert, FlatList, StyleSheet, Text, View} from 'react-native';
+import {Button, Input, PostRender} from '../components';
 import firebase from 'firebase';
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
 const App: FC<Props> = props => {
   const [msg, setMsg] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [posts, setPosts] = useState<any>([]);
 
   const signOut = () => {
     firebase.auth().signOut();
@@ -22,8 +23,20 @@ const App: FC<Props> = props => {
     setUser({id: user.id, ...user.data()});
   };
 
+  const fetchPosts = async () => {
+    firebase
+      .firestore()
+      .collection('posts')
+      .where('approved', '==', true)
+      .onSnapshot(querySnapShot => {
+        const documents = querySnapShot.docs;
+        setPosts(documents);
+      });
+  };
+
   useEffect(() => {
     fetchCurrentUser();
+    fetchPosts();
   }, []);
 
   const post = async () => {
@@ -46,25 +59,46 @@ const App: FC<Props> = props => {
 
   return (
     <View style={styles.container}>
-      <Text>Home Screen</Text>
-      <Button title="Sign Out" onPress={signOut} />
-      <View>
-        <Input
-          placeholder="Write Something Here"
-          onChangeText={text => setMsg(text)}
-        />
-        <Button title="Post" onPress={post} />
-      </View>
-      {user ? (
-        user.isAdmin ? (
-          <View>
-            <Button
-              title="Dashboard"
-              onPress={() => props.navigation.navigate('dashboard')}
-            />
+      <View style={{flex: 0.5, marginTop: 50}}>
+        {posts.length > 0 ? (
+          <FlatList
+            data={posts}
+            renderItem={({item}) => (
+              <PostRender
+                msg={item.data().msg}
+                timeStamp={item.data().timeStamp}
+                approved={item.data().approved}
+              />
+            )}
+          />
+        ) : (
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text>Nothing To Display</Text>
           </View>
-        ) : null
-      ) : null}
+        )}
+      </View>
+      <View style={{flex: 0.5}}>
+        <Text>Home Screen</Text>
+        <Button title="Sign Out" onPress={signOut} />
+        <View>
+          <Input
+            placeholder="Write Something Here"
+            onChangeText={text => setMsg(text)}
+          />
+          <Button title="Post" onPress={post} />
+        </View>
+        {user ? (
+          user.isAdmin ? (
+            <View>
+              <Button
+                title="Dashboard"
+                onPress={() => props.navigation.navigate('dashboard')}
+              />
+            </View>
+          ) : null
+        ) : null}
+      </View>
     </View>
   );
 };
