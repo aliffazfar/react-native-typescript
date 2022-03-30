@@ -1,8 +1,12 @@
 import React, {FC, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
 import {Input, Button} from '../components';
 
-const App: FC = () => {
+interface Props {
+  navigation: any;
+}
+
+const App: FC<Props> = props => {
   const [name, setName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
@@ -17,10 +21,12 @@ const App: FC = () => {
         secureTextEntry
         onChangeText={text => setPassword(text)}
       />
-      <Button title="Sign Up" onPress={() => alert(`Pressed`)} />
+      <Button title="Sign Up" onPress={() => Alert.alert(`Pressed`)} />
       <View style={styles.loginText}>
         <Text style={{marginHorizontal: 5}}>Already Have an Account?</Text>
-        <TouchableOpacity style={{marginHorizontal: 5}}>
+        <TouchableOpacity
+          onPress={() => props.navigation.navigate('login')}
+          style={{marginHorizontal: 5}}>
           <Text style={{color: 'rgba(81,135,200,1)'}}>Login Here</Text>
         </TouchableOpacity>
       </View>
