@@ -1,5 +1,5 @@
 import React, {FC, useState} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Input, Button} from '../components';
 
 const App: FC = () => {
@@ -18,6 +18,12 @@ const App: FC = () => {
         onChangeText={text => setPassword(text)}
       />
       <Button title="Sign Up" onPress={() => alert(`Pressed`)} />
+      <View style={styles.loginText}>
+        <Text style={{marginHorizontal: 5}}>Already Have an Account?</Text>
+        <TouchableOpacity style={{marginHorizontal: 5}}>
+          <Text style={{color: 'rgba(81,135,200,1)'}}>Login Here</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -29,5 +35,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loginText: {
+    flexDirection: 'row',
+    marginVertical: 20,
   },
 });
