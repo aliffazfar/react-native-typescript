@@ -1,6 +1,7 @@
 import React, {FC, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View, Alert} from 'react-native';
 import {Input, Button} from '../components';
+import firebase from 'firebase';
 
 interface Props {
   navigation: any;
@@ -10,6 +11,28 @@ const App: FC<Props> = props => {
   const [name, setName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState<string | null>(null);
+
+  const signup = async () => {
+    if (name && email && password) {
+      try {
+        const {user} = await firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password);
+
+        if (user) {
+          await firebase
+            .firestore()
+            .collection('users')
+            .doc(user.uid)
+            .set({name, email, password});
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      Alert.alert(`Error`, `Missing Fields`);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -21,7 +44,7 @@ const App: FC<Props> = props => {
         secureTextEntry
         onChangeText={text => setPassword(text)}
       />
-      <Button title="Sign Up" onPress={() => Alert.alert(`Pressed`)} />
+      <Button title="Sign Up" onPress={signup} />
       <View style={styles.loginText}>
         <Text style={{marginHorizontal: 5}}>Already Have an Account?</Text>
         <TouchableOpacity
