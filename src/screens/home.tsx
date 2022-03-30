@@ -1,14 +1,30 @@
-import React, {FC, useState} from 'react';
+import React, {FC, useEffect, useState} from 'react';
 import {Alert, StyleSheet, Text, View} from 'react-native';
 import {Button, Input} from '../components';
 import firebase from 'firebase';
 
-const App: FC = props => {
+interface Props {
+  navigation: any;
+}
+
+const App: FC<Props> = props => {
   const [msg, setMsg] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
 
   const signOut = () => {
     firebase.auth().signOut();
   };
+
+  const fetchCurrentUser = async () => {
+    const uid = firebase.auth().currentUser.uid;
+    const user = await firebase.firestore().collection('users').doc(uid).get();
+
+    setUser({id: user.id, ...user.data()});
+  };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
   const post = async () => {
     if (msg) {
@@ -39,6 +55,16 @@ const App: FC = props => {
         />
         <Button title="Post" onPress={post} />
       </View>
+      {user ? (
+        user.isAdmin ? (
+          <View>
+            <Button
+              title="Dashboard"
+              onPress={() => props.navigation.navigate('dashboard')}
+            />
+          </View>
+        ) : null
+      ) : null}
     </View>
   );
 };
