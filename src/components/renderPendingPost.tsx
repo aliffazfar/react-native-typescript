@@ -24,11 +24,11 @@ const formatTime = (timeStamp: number): any => {
 const App: FC<Props> = props => {
   return (
     <View style={styles.container}>
-      <View>
-        <Text>{props.msg}</Text>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <Text style={{width: '60%'}}>{props.msg}</Text>
         <Text>{formatTime(props.timeStamp)}</Text>
       </View>
-      <View>
+      <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
         <Button title="Approve" onPress={props.onApprove} />
         <Button title="Reject" onPress={props.onReject} />
       </View>
